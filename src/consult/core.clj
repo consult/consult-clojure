@@ -102,14 +102,17 @@
     body must look like:
 
     {
-        :ID    \"redis1\"
-        :Name  \"redis\"
-        :Tags  [ :master :v1 ]
-        :Port  8000
-        :Check {
-            :Script   \"/usr/local/bin/check_redis.py\"
-            :Interval \"10s\"
-            :TTL      \"15s\" } }
+        :ID    \"redis1\"      ; Optional
+        :Name  \"redis\"       ; Mandatory
+        :Tags  [ :master :v1 ] ; Optional
+        :Port  8000            ; Optional
+        :Check                 ; Optional
+            {
+              :Script   \"/usr/local/bin/check_redis.py\"
+              :Interval \"10s\"
+              :TTL      \"15s\"
+            }
+        }
   "
   [base data]
   (hput (str base "/v1/agent/service/register") data))
