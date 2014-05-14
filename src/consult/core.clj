@@ -25,19 +25,19 @@
     * agent-check-fail!         ~ Add a fail check ??
     * agent-service-register!   ~ Register a new service with an agent
     * agent-service-deregister! ~ Deregister a service with an agent
-    * catalog-register!
-    * catalog-deregister!
-    * catalog-datacenters
-    * catalog-nodes
-    * catalog-services
-    * catalog-service
-    * catalog-node
-    * health-node
-    * health-checks
-    * health-service
-    * health-state
-    * status-leader
-    * status-peers
+    * catalog-register!         ~ Low level service registration
+    * catalog-deregister!       ~ Low level service un-registration
+    * catalog-datacenters       ~ Low level data-center listing
+    * catalog-nodes             ~ Low level node listing
+    * catalog-services          ~ Low level services listing
+    * catalog-service           ~ Low level individual service information
+    * catalog-node              ~ Low level individual node information
+    * health-node               ~ Node health
+    * health-checks             ~ Node health checks info
+    * health-service            ~ Service health
+    * health-state              ~ Overall health state ??
+    * status-leader             ~ Leader node information
+    * status-peers              ~ Peer information
   "
   (:require  [org.httpkit.client :as http]
              [clojure.data.json :as json]))
