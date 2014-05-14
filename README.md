@@ -4,11 +4,10 @@ A Clojure library designed to ... well, that part is up to you.
 
 ## Usage
 
-FIXME
+Project.clj:
 
-## License
+  [consult "0.1.0-SNAPSHOT"]
 
-Copyright © 2014 FIXME
+Source:
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+  (:require [consult.core :as consult])
