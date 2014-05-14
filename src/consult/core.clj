@@ -7,6 +7,37 @@
 
   There is also the (api base) function that returns a map
   of the existing methods with the base partially applied.
+
+  Current functions include:
+
+    * kv                        ~ Get a key-value pair
+    * kv-put!                   ~ Put a new value against a key
+    * kv-delete!                ~ Delete a key
+    * agent-checks              ~ List checks registered against an agent
+    * agent-services            ~ List services registered against an agent
+    * agent-members             ~ List members registered against an agent
+    * agent-join!               ~ Make agent join a cluster
+    * agent-force-leave!        ~ Make agent leave a cluster
+    * agent-check-register!     ~ Add a registration check ??
+    * agent-check-deregister!   ~ Add a deregistration check ??
+    * agent-check-pass!         ~ Add a pass check ??
+    * agent-check-warn!         ~ Add a warn check ??
+    * agent-check-fail!         ~ Add a fail check ??
+    * agent-service-register!   ~ Register a new service with an agent
+    * agent-service-deregister! ~ Deregister a service with an agent
+    * catalog-register!
+    * catalog-deregister!
+    * catalog-datacenters
+    * catalog-nodes
+    * catalog-services
+    * catalog-service
+    * catalog-node
+    * health-node
+    * health-checks
+    * health-service
+    * health-state
+    * status-leader
+    * status-peers
   "
   (:require  [org.httpkit.client :as http]
              [clojure.data.json :as json]))
@@ -47,9 +78,25 @@
 (defn agent-checks
   [])
 (defn agent-services
-  [])
+  " This endpoint is used to return the all the services that are registered with
+    the local agent. These services were either provided through configuration
+    files, or added dynamically using the HTTP API. It is important to note that
+    the services known by the agent may be different than those reported by the
+    Catalog. This is usually due to changes being made while there is no leader
+    elected. The agent performs active anti-entropy, so in most situations
+    everything will be in sync within a few seconds.
+  "
+  [base]
+  (hget (str base "/v1/agent/services")))
+
 (defn agent-members
-  [])
+  "This endpoint is hit with a GET and returns the members the agent sees in
+  the cluster gossip pool. Due to the nature of gossip, this is eventually
+  consistent and the results may differ by agent. The strongly consistent view
+  of nodes is instead provided by /v1/catalog/nodes."
+  [base]
+  (hget (str base "/v1/agent/members")))
+
 (defn agent-join!
   [])
 (defn agent-force-leave!
@@ -109,7 +156,15 @@
 (defn catalog-services
   [])
 (defn catalog-service
-  [])
+  " This endpoint is hit with a GET and returns the nodes providing a service in
+    a given DC. By default the datacenter of the agent is queried, however the dc
+    can be provided using the ?dc= query parameter.  The service being queried
+    must be provided after the slash. By default all nodes in that service are
+    returned. However, the list can be filtered by tag using the ?tag= query
+    parameter."
+  [base id]
+  (hget (str base (name id))))
+
 (defn catalog-node
   [])
 
