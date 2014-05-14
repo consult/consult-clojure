@@ -44,9 +44,17 @@
 
 
 ;; Helpers to serialize/deserialize the reponse
-(defn- hget    [path     ] (json/read-str (:body @(http/get path))))
-(defn- hput    [path body] (json/read-str (:body @(http/put path {:body (json/write-str body)}))))
-(defn- hdelete [path     ] (json/read-str (:body @(http/delete path))))
+(defn- json?    [data     ] (try (json/read-str data) (catch Throwable e nil)))
+(defn- response [prom     ] (let [_        (or prom                (throw (ex-info "Expected a promise to be returned" {})))
+                                  data     (or @prom               (throw (ex-info "Expected an HTTP response" {})))
+                                  status   (:status data)
+                                  _        (or (<= 200 status 299) (throw (ex-info "Non-200 response from server" data)))
+                                  body     (or (:body data)        (throw (ex-info "Expected an HTTP response body" {})))
+                                  ]
+                                (json? body)))
+(defn- hget     [path     ] (response (http/get path)))
+(defn- hput     [path body] (response (http/put path {:body (json/write-str body)})))
+(defn- hdelete  [path     ] (response (http/delete path)))
 
 (defn kv
  "The KV endpoint is used to expose a simple key/value store. This can be used
