@@ -1,6 +1,7 @@
 (ns consult.core
   "A clojure wrapper for http://www.consul.io/docs/agent/http.html
 
+    http://localhost:8500/v1/
     http://<host>:<port>/v1/
       kv/
               <key>                          ~ GET PUT DELETE
@@ -40,14 +41,18 @@
              [clojure.data.json :as json]))
 
 
+(defn- hget    [path     ] (json/read-str (:body @(http/get path))))
+(defn- hput    [path body] (json/read-str (:body @(http/put path {:body (json/write-str body)}))))
+(defn- hdelete [path     ] (json/read-str (:body @(http/delete path))))
+
 (defn kv
  "The KV endpoint is used to expose a simple key/value store. This can be used
  to store service configurations or other meta data in a simple way. It has
  only a single endpoint: /v1/kv/<key>
 
  This method gets the value of the key."
-  [options k]
-  @(http/get (str (:base options) "/v1/kv/" k)))
+  [base k]
+  (hget (str base "/v1/kv/" k)))
 
 (defn kv-put!
  "The KV endpoint is used to expose a simple key/value store. This can be used
@@ -55,17 +60,17 @@
  only a single endpoint: /v1/kv/<key>
 
  This method updates the value of the key."
-  [options k body]
-  @(http/put (str (:base options) "/v1/kv/" k) {:body (json/write-str body)}))
+  [base k body]
+  (hput (str base "/v1/kv/" k) body))
 
-(defn kv-delete! [options k]
+(defn kv-delete!
  "The KV endpoint is used to expose a simple key/value store. This can be used
  to store service configurations or other meta data in a simple way. It has
  only a single endpoint: /v1/kv/<key>
 
  This method deletes the key."
-  [options k]
-  @(http/delete (str (:base options) "/v1/kv/" k)))
+  [base k]
+  (hdelete (str base "/v1/kv/" k)))
 
 (defn agent-checks
   [])
