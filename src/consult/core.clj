@@ -1,46 +1,18 @@
 (ns consult.core
   "A clojure wrapper for http://www.consul.io/docs/agent/http.html
 
-    http://localhost:8500/v1/
-    http://<host>:<port>/v1/
-      kv/
-              <key>                          ~ GET PUT DELETE
-      agent/
-              checks                         ~ GET
-              services                       ~ GET
-              members                        ~ GET
-              join/<address>                 ~ GET (performs action)
-              force-leave/<node>             ~ GET (performs action)
-              check/
-                    register                 ~ PUT (JSON)
-                    deregister/<checkId>     ~ ??? (method not listed)
-                    pass/<checkId>           ~ ??? (method not listed)
-                    warn/<checkId>           ~ ??? (method not listed)
-                    fail/<checkId>           ~ ??? (method not listed)
-              service/
-                      register               ~ PUT
-                      deregister/<serviceId> ~ ??? (method not listed)
-      catalog/
-              register                       ~ PUT
-              deregister                     ~ PUT
-              datacenters                    ~ GET
-              nodes                          ~ GET
-              services                       ~ GET
-              service/<service>              ~ GET
-              node/<node>                    ~ GET
-      health/
-              node/<node>                    ~ GET
-              checks/<service>               ~ GET
-              service/<service>              ~ GET
-              state/<state>                  ~ GET
-      status/
-              leader                         ~ ??? (method not listed)
-              peers                          ~ ??? (method not listed)
+  Individual methods are provided of the form (method base data)
+  where base is the base url for the service - by default Consul
+  uses: http://localhost:8500
+
+  There is also the (api base) function that returns a map
+  of the existing methods with the base partially applied.
   "
   (:require  [org.httpkit.client :as http]
              [clojure.data.json :as json]))
 
 
+;; Helpers to serialize/deserialize the reponse
 (defn- hget    [path     ] (json/read-str (:body @(http/get path))))
 (defn- hput    [path body] (json/read-str (:body @(http/put path {:body (json/write-str body)}))))
 (defn- hdelete [path     ] (json/read-str (:body @(http/delete path))))
@@ -52,7 +24,7 @@
 
  This method gets the value of the key."
   [base k]
-  (hget (str base "/v1/kv/" k)))
+  (hget (str base "/v1/kv/" (name k))))
 
 (defn kv-put!
  "The KV endpoint is used to expose a simple key/value store. This can be used
@@ -61,7 +33,7 @@
 
  This method updates the value of the key."
   [base k body]
-  (hput (str base "/v1/kv/" k) body))
+  (hput (str base "/v1/kv/" (name k)) body))
 
 (defn kv-delete!
  "The KV endpoint is used to expose a simple key/value store. This can be used
@@ -70,7 +42,7 @@
 
  This method deletes the key."
   [base k]
-  (hdelete (str base "/v1/kv/" k)))
+  (hdelete (str base "/v1/kv/" (name k))))
 
 (defn agent-checks
   [])
@@ -124,7 +96,7 @@
     that is also deregistered.
   "
   [base id]
-  (hdelete (str base "/v1/agent/service/deregister/" id)))
+  (hdelete (str base "/v1/agent/service/deregister/" (name id))))
 
 (defn catalog-register!
   [])
@@ -154,3 +126,14 @@
   [])
 (defn status-peers
   [])
+
+(defn api
+  "A helper (factory) method used for partially applying the options for the individual methods.
+
+  This could be used in the following way:
+
+  (def system (api \"http://localhost:8500\")
+  ((:kv system) :testing)"
+
+  [base]
+  {:incomplete true})
