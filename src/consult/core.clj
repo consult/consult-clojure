@@ -82,7 +82,7 @@
   [])
 (defn agent-force-leave!
   [])
-(defn agent-check-register-put!
+(defn agent-check-register!
   [])
 (defn agent-check-deregister!
   [])
@@ -92,8 +92,28 @@
   [])
 (defn agent-check-fail!
   [])
-(defn agent-service-register-put!
-  [])
+(defn agent-service-register!
+  " The register endpoint is used to add a new service to the local agent.
+    There is more documentation on services here. Services may also provide a
+    health check. The agent is responsible for managing the status of the check and
+    keeping the Catalog in sync.
+
+    The register endpoint expects a JSON request body to be PUT. The request
+    body must look like:
+
+    {
+        :ID    \"redis1\"
+        :Name  \"redis\"
+        :Tags  [ :master :v1 ]
+        :Port  8000
+        :Check {
+            :Script   \"/usr/local/bin/check_redis.py\"
+            :Interval \"10s\"
+            :TTL      \"15s\" } }
+  "
+  [base data]
+  (hput (str base "/v1/agent/service/register") data))
+
 (defn agent-service-deregister!
   [])
 
