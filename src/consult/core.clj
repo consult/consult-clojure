@@ -118,7 +118,13 @@
   (hput (str base "/v1/agent/service/register") data))
 
 (defn agent-service-deregister!
-  [])
+  " The deregister endpoint is used to remove a service from the local agent. The
+    ServiceID must be passed after the slash. The agent will take care of
+    deregistering the service with the Catalog. If there is an associated check,
+    that is also deregistered.
+  "
+  [base id]
+  (hdelete (str base "/v1/agent/service/deregister/" id)))
 
 (defn catalog-register!
   [])
