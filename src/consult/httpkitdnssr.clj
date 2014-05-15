@@ -59,4 +59,4 @@
          response (http/get url) ]
     @response))
 
-(service-get-index "foobar")
+; (service-get-index "foobar")
