@@ -19,19 +19,24 @@
     (sample result)))
 
 (defn query [service]
+  "Get a '<HOST>:PORT' pair for a service.
+   Randomly picks a service node from the list of nodes returned"
   (let [ service-info (dig2 service)
          address      (service-info "Address")
          port         (service-info "ServicePort") ]
     (str "" address ":" port)))
 
-(defn service-get-index [service]
-  (let [ url      (str "http://" (query service) "/index.html")
-         response (http/get url) ]
-    @response))
+(defn service-http-request
+  "
+   Request an http-resource through the httpkit 'client/request' function.
+   Uses the 'query' function to find a node matching the requested service.
 
-(defn service-request
+   Usage: (service-http-request :foobar                            ) or
+          (service-http-request :foobar '/path'                    ) or
+          (service-http-request :foobar '/path' {:options :options})
+  "
   ([service]      (service-request service "/" {}))
-  ([service path] (service-request service path {})) 
+  ([service path] (service-request service path {}))
   ([service path options]
     (let [ address (query service)
            url     (str "http://" address path)
