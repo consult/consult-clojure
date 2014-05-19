@@ -8,20 +8,6 @@
   (:require  [org.httpkit.client :as    http]
              [clojure.data.json  :as    json]))
 
-(defn words [text] (clojure.string/split text #"\s"))
-
-(defn fields [item] (clojure.string/split item #"\t"))
-
-(defn clean-header [string] (clojure.string/replace string #";; |:" ""))
-
-(defn parse-lines [[header & items]]
-  (if (empty? items)
-    {}
-    (let [ initial (take-while #(re-find #"^[a-z]" %) items)
-           final   (drop-while #(re-find #"^[a-z]" %) items)
-          ]
-      (merge {(clean-header header) (map fields initial)} (parse-lines final)))))
-
 (defn sample [xs]
   (nth xs (Math/floor (rand (count xs)))))
 
@@ -31,18 +17,6 @@
          result  (json/read-str (:body response))
         ]
     (sample result)))
-
-(defn find-name [answer] (last answer))
-
-(defn find-port [answer] (let [field  (nth (last answer) 4)
-                               tokens (words field)
-                               item   (nth tokens 2)
-                               ] item))
-
-(defn find-ip   [service-name additional]
-  ;(filter #(= service-name (first %)) additional)
-  (map last additional) ; TODO
-  )
 
 (defn query [service]
   (let [ service-info (dig2 service)
@@ -55,4 +29,12 @@
          response (http/get url) ]
     @response))
 
-; (service-get-index "foobar")
+(defn service-request
+  ([service]      (service-request service "/" {}))
+  ([service path] (service-request service path {})) 
+  ([service path options]
+    (let [ address (query service)
+           url     (str "http://" address path)
+           response (http/request (assoc options :url url) identity)
+          ]
+    response)))
