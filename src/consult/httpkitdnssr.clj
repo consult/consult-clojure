@@ -11,7 +11,8 @@
 (defn dig2 [service]
   (let [ url (str "http://127.0.0.1:8500/v1/catalog/service/" service)
          response @(http/get url)
-         body     (or (:body response) (throw (ex-info "No body returned in response to consul service query" response)))
+         body     (or (:body response)
+                      (throw (ex-info "No body returned in response to consul service query" response)))
          result   (json/read-str body)
         ]
     (rand-nth result)))
