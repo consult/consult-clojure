@@ -8,15 +8,13 @@
   (:require  [org.httpkit.client :as    http]
              [clojure.data.json  :as    json]))
 
-(defn sample [xs]
-  (nth xs (Math/floor (rand (count xs)))))
-
 (defn dig2 [service]
   (let [ url (str "http://127.0.0.1:8500/v1/catalog/service/" service)
          response @(http/get url)
-         result  (json/read-str (:body response))
+         body     (or (:body response) (throw (ex-info "No body returned in response to consul service query" response)))
+         result   (json/read-str body)
         ]
-    (sample result)))
+    (rand-nth result)))
 
 (defn query [service]
   "Get a '<HOST>:PORT' pair for a service.
@@ -35,8 +33,8 @@
           (service-http-request :foobar '/path'                    ) or
           (service-http-request :foobar '/path' {:options :options})
   "
-  ([service]      (service-request service "/" {}))
-  ([service path] (service-request service path {}))
+  ([service]      (service-http-request service "/" {}))
+  ([service path] (service-http-request service path {}))
   ([service path options]
     (let [ address (query service)
            url     (str "http://" address path)
